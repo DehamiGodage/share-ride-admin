@@ -33,3 +33,80 @@ export default function PlaceholderPage({ route }) {
     </div>
   );
 }
+
+/*import { useState } from 'react';
+import { DataTable, StatusChip, Drawer, ConfirmDialog } from './index';
+
+const ROWS = [
+  { id: 'USR-1001', name: 'Nimal Perera', status: 'active' },
+  { id: 'USR-1002', name: 'Kasun Silva', status: 'suspended' },
+  { id: 'USR-1003', name: 'Amali Fernando', status: 'active' },
+];
+
+export default function KitDemo() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selected, setSelected] = useState([]);
+  const [sort, setSort] = useState(null);
+
+  const rows = [...ROWS].sort((a, b) => {
+    if (!sort) return 0;
+    const cmp = String(a[sort.key]).localeCompare(String(b[sort.key]));
+    return sort.dir === 'asc' ? cmp : -cmp;
+  });
+
+  const columns = [
+    { key: 'id', header: 'ID', sortable: true },
+    { key: 'name', header: 'Name', sortable: true },
+    { key: 'status', header: 'Status', sortable: true,
+      render: (r) => <StatusChip entity="user" status={r.status} /> },
+  ];
+
+  return (
+    <>
+      <DataTable
+        columns={columns}
+        rows={rows}
+        total={rows.length}
+        sort={sort}
+        onSortChange={setSort}
+        selectable
+        selected={selected}
+        onSelectedChange={setSelected}
+        onRowClick={(row) => { setSelectedUser(row); setDrawerOpen(true); }}
+        updatedLabel="Updated just now"
+        onRefresh={() => console.log('refresh')}
+      />
+
+      <Drawer
+        open={drawerOpen}
+        title={selectedUser ? `User ${selectedUser.id}` : 'User detail'}
+        onClose={() => setDrawerOpen(false)}
+        footer={
+          <button type="button" className="btn btn--danger" onClick={() => setConfirmOpen(true)}>
+            Suspend
+          </button>
+        }
+      >
+        <p>{selectedUser?.name}</p>
+        <StatusChip entity="user" status={selectedUser?.status || 'active'} />
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Suspend user"
+        message={`Suspend ${selectedUser?.name || 'this user'}?`}
+        danger
+        confirmLabel="Suspend"
+        requireReason
+        reasonOptions={['Abuse', 'Repeated no-shows', 'Other']}
+        onConfirm={(reason) => {
+          console.log('Suspended with reason:', reason);
+          setConfirmOpen(false);
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
+    </>
+  );
+}*/
