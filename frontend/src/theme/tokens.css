@@ -1,0 +1,35 @@
+/* Shared design tokens (design document, section 3). Change values here only. */
+:root {
+  --color-primary: #5b4bdb;
+  --color-deep: #312e81;
+  --color-accent: #f0abfc;
+  --color-bg: #f8f7ff;
+  --color-ink: #24213b;
+  --color-border: #d9d6f5;
+  --color-surface: #ffffff;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-muted: #6b6890;
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --shadow-card: 0 1px 2px rgba(49, 46, 129, 0.06), 0 1px 3px rgba(49, 46, 129, 0.08);
+
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 72px;
+  --topbar-height: 64px;
+  --content-max: 1440px;
+
+  /* 4 px spacing grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+}
