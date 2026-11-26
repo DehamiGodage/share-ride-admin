@@ -1,7 +1,7 @@
 require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
+const connectDB = require('./config/db');
 const { authenticate } = require('./core/auth');
 
 const app = express();
@@ -21,11 +21,21 @@ app.use((req, res) => {
 
 // Error handler: same error format for everyone
 app.use((err, req, res, next) => {
-  console.error(err);
+  if (!err.status || err.status >= 500) console.error(err);
   res.status(err.status || 500).json({
-    error: { code: err.code || 'SERVER_ERROR', message: err.message },
+    error: { code: err.code || 'SERVER_ERROR', message: err.message, ...(err.details && { details: err.details }) },
   });
 });
 
-const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`Backend running on port ${port}`));
+module.exports = app;
+
+// Start the server only when this file is run directly (npm run dev), not when tests import it.
+if (require.main === module) {
+  const port = process.env.PORT || 4000;
+  connectDB()
+    .then(() => app.listen(port, () => console.log(`Backend running on port ${port}`)))
+    .catch((err) => {
+      console.error('[db] Connection failed:', err.message);
+      process.exit(1);
+    });
+}

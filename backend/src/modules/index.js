@@ -8,6 +8,8 @@ router.get('/me', (req, res) =>
   res.json({ user: req.user, permissions: permissionsFor(req.user.role) })
 );
 
+router.use('/audit', require('./audit/audit.routes'));
+
 // Each member adds ONE line for their own module, for example:
 // router.use('/users', require('./users/users.routes'));
 
