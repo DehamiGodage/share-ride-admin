@@ -5,6 +5,7 @@ import './theme/tokens.css';
 import './theme/layout.css';
 import App from './App';
 import { AuthProvider } from './app/AuthContext';
+import { ToastProvider } from './shared/components';
 
 async function enableMocks() {
   if (import.meta.env.VITE_USE_MOCKS !== 'true') return;
@@ -22,7 +23,9 @@ enableMocks().then(() => {
     <StrictMode>
       <BrowserRouter>
         <AuthProvider>
-          <App />
+          <ToastProvider>
+             <App />
+          </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
     </StrictMode>
