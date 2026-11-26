@@ -23,6 +23,7 @@ info:
     - Editable records carry a "version" number. Send it back when saving. A mismatch returns 409 CONFLICT.
     - "x-permission" on each operation is the area:level passed to requirePermission(area, level) in the backend. "x-page" is the page ID from the design document.
     - Every module publishes a "GET /admin/<module>/summary" endpoint used by the Dashboard (P03).
+    - Permission levels are view, suspend, send and full. "full" includes all the others. Use "suspend" for suspend, reactivate and force sign-out, and "send" for sending notifications.
 servers:
   - url: http://localhost:4000
 security:
@@ -216,8 +217,8 @@ paths:
   /admin/me:
     get:
       tags: [Account]
-      summary: Current admin (id, name, email, role). Also used to check the auth stub.
-      x-page: P25
+      summary: Current admin and what their role may do. The frontend uses "permissions" to show only the menu groups the role can open.
+      x-page: Shell
       x-permission: any signed-in admin
       responses:
         '200':
@@ -228,6 +229,21 @@ paths:
                 type: object
                 properties:
                   user: { $ref: '#/components/schemas/AdminUser' }
+                  permissions:
+                    type: object
+                    description: One entry per area (dashboard, users, rides_bookings and so on). null means no access.
+                    additionalProperties:
+                      type: object
+                      nullable: true
+                      properties:
+                        full: { type: boolean }
+                        actions:
+                          type: array
+                          items: { type: string, enum: [view, suspend, send, full] }
+                        scope:
+                          type: string
+                          nullable: true
+                          enum: [own, aggregates, counts, anonymised, null]
   /admin/account:
     get:
       tags: [Account]
@@ -500,7 +516,7 @@ paths:
       tags: [Users]
       summary: Suspend a user. Cannot suspend yourself or a SuperAdmin.
       x-page: P05
-      x-permission: users:full
+      x-permission: users:suspend
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         required: true
@@ -523,7 +539,7 @@ paths:
       tags: [Users]
       summary: Reactivate a user
       x-page: P05
-      x-permission: users:full
+      x-permission: users:suspend
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody: { $ref: '#/components/requestBodies/Reason' }
       responses:
@@ -533,7 +549,7 @@ paths:
       tags: [Users]
       summary: Sign the user out of the mobile app everywhere
       x-page: P04
-      x-permission: users:full
+      x-permission: users:suspend
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
         '200': { $ref: '#/components/responses/Ack' }
@@ -1191,7 +1207,7 @@ paths:
       tags: [Notifications]
       summary: Resend a failed notification
       x-page: P18
-      x-permission: notifications:full
+      x-permission: notifications:send
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
         '200': { $ref: '#/components/responses/Ack' }
@@ -1200,7 +1216,7 @@ paths:
       tags: [Notifications]
       summary: Send or schedule a broadcast. Over 1000 recipients needs SuperAdmin approval. SMS is never used.
       x-page: P18
-      x-permission: notifications:full
+      x-permission: notifications:send
       requestBody:
         required: true
         content:
