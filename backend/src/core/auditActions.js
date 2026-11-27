@@ -25,4 +25,4 @@ const AUDIT_ACTIONS = [
   'audit.export',
 ];
 
-module.exports = { AUDIT_ACTIONS };
+export { AUDIT_ACTIONS };

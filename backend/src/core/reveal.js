@@ -1,6 +1,6 @@
-const { can } = require('./permissions');
-const { auditLog } = require('./audit');
-const { httpError } = require('./httpError');
+import { can } from './permissions.js';
+import { auditLog } from './audit.js';
+import { httpError } from './httpError.js';
 
 const REVEALABLE = ['email', 'mobile', 'nic', 'licenceNumber', 'address', 'dateOfBirth'];
 
@@ -45,4 +45,4 @@ async function revealFields({ req, area, level = 'full', targetType, targetId, r
   return out;
 }
 
-module.exports = { revealFields, REVEALABLE };
+export { revealFields, REVEALABLE };

@@ -1,7 +1,7 @@
-const { verifyAccess } = require('./tokens');
-const { httpError } = require('./httpError');
-const Admin = require('../modules/admins/admin.model');
-const Session = require('../modules/auth/session.model');
+import { verifyAccess } from './tokens.js';
+import { httpError } from './httpError.js';
+import Admin from '../modules/admins/admin.model.js';
+import Session from '../modules/auth/session.model.js';
 async function authenticate(req, res, next) {
   try {
     const header = req.header('authorization') || '';
@@ -24,4 +24,4 @@ async function authenticate(req, res, next) {
     next();
   } catch (err) { next(err); }
 }
-module.exports = { authenticate };
+export { authenticate };

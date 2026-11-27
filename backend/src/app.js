@@ -1,8 +1,11 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./config/db');
-const { authenticate } = require('./core/auth');
+import 'dotenv/config';
+import { pathToFileURL } from 'node:url';
+import authRoutes from './modules/auth/auth.routes.js';
+import adminRoutes from './modules/index.js';
+import express from 'express';
+import cors from 'cors';
+import connectDB from './config/db.js';
+import { authenticate } from './core/auth.js';
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL }));
@@ -12,10 +15,10 @@ app.use(express.json());
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 
-app.use('/auth', require('./modules/auth/auth.routes'));
+app.use('/auth', authRoutes);
 
-// Everything under /admin goes through authenticate (stub today, real JWT on day 3)
-app.use('/admin', authenticate, require('./modules'));
+// Everything under /admin goes through authenticate
+app.use('/admin', authenticate, adminRoutes);
 
 // Unknown route
 app.use((req, res) => {
@@ -30,10 +33,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = app;
+export default app;
 
 // Start the server only when this file is run directly (npm run dev), not when tests import it.
-if (require.main === module) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = process.env.PORT || 4000;
   connectDB()
     .then(() => app.listen(port, () => console.log(`Backend running on port ${port}`)))

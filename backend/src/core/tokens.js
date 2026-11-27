@@ -1,5 +1,5 @@
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
+import crypto from 'node:crypto';
+import jwt from 'jsonwebtoken';
 
 const ACCESS_SECONDS = 15 * 60;
 
@@ -48,4 +48,4 @@ function newBackupCodes(count = 10) {
   return { plain, hashed };
 }
 
-module.exports = { ACCESS_SECONDS, sha256, randomToken, signAccess, verifyAccess, signChallenge, verifyChallenge, normalizeBackupCode, newBackupCodes };
+export { ACCESS_SECONDS, sha256, randomToken, signAccess, verifyAccess, signChallenge, verifyChallenge, normalizeBackupCode, newBackupCodes };

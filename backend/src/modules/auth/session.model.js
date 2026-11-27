@@ -1,6 +1,6 @@
 //Store and manage admin login sessions.ex:session 1 -chrome,session 2-firefox
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // One row per signed-in browser. The refresh token is stored only as a hash.
 const sessionSchema = new mongoose.Schema(
@@ -18,4 +18,4 @@ const sessionSchema = new mongoose.Schema(
 );
 sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 86400 }); // MongoDB deletes old rows a day later
 
-module.exports = mongoose.models.AdminSession || mongoose.model('AdminSession', sessionSchema);
+export default mongoose.models.AdminSession || mongoose.model('AdminSession', sessionSchema);

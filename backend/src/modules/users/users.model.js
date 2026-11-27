@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 /*
   Admin view of the mobile app's users (P04, P05).
@@ -45,4 +45,4 @@ const USER_PUBLIC_FIELDS =
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
-module.exports = { User, USER_PUBLIC_FIELDS };
+export { User, USER_PUBLIC_FIELDS };

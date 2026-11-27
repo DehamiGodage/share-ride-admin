@@ -12,4 +12,4 @@ function maskMobile(mobile = '') {
   return `${s.slice(0, 3)} ${s.slice(3, 5)} *** ${s.slice(-4)}`; // +94 77 *** 4567
 }
 
-module.exports = { maskEmail, maskMobile };
+export { maskEmail, maskMobile };

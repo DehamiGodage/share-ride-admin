@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const AuditLog = require('../modules/audit/audit.model');
-const { AUDIT_ACTIONS } = require('./auditActions');
-const { httpError } = require('./httpError');
+import mongoose from 'mongoose';
+import AuditLog from '../modules/audit/audit.model.js';
+import { AUDIT_ACTIONS } from './auditActions.js';
+import { httpError } from './httpError.js';
 
 const KNOWN = new Set(AUDIT_ACTIONS);
 
@@ -62,4 +62,4 @@ async function auditLog({ req, actor, action, targetType, targetId, result = 'su
   }
 }
 
-module.exports = { auditLog };
+export { auditLog };

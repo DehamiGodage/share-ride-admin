@@ -1,14 +1,15 @@
 
 //Create the initial admin accounts without public registration.
 
-require('dotenv').config();
-const mongoose = require('mongoose');
-const { authenticator } = require('otplib');
-const connectDB = require('../src/config/db');
-const { encrypt } = require('../src/core/secretBox');
-const Admin = require('../src/modules/admins/admin.model');
-const { hashPassword, checkPolicy } = require('../src/core/passwords');
-const { newBackupCodes } = require('../src/core/tokens');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import otplib from 'otplib';
+const { authenticator } = otplib;
+import connectDB from '../src/config/db.js';
+import { encrypt } from '../src/core/secretBox.js';
+import Admin from '../src/modules/admins/admin.model.js';
+import { hashPassword, checkPolicy } from '../src/core/passwords.js';
+import { newBackupCodes } from '../src/core/tokens.js';
 
 // node scripts/seed-admin.js you@example.com "Your Name" super_admin "a-long-password-12+"
 (async () => {
