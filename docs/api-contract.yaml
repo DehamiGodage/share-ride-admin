@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Share-Ride Admin API
-  version: 0.1.0-draft
+  version: 0.2.0-draft
   description: |
     Contract between the admin web panel (frontend) and the Admin API (backend).
     Source: Admin Web Panel Page-by-Page Design Specification (pages P01 to P26).
@@ -14,9 +14,9 @@ info:
     - Success, list:        { "data": [ ... ], "meta": { "page": 1, "limit": 25, "total": 120, "updatedAt": "..." } }
     - Error (all failures): { "error": { "code": "FORBIDDEN", "message": "...", "details": [ ... ] } }
     - Error codes: VALIDATION_ERROR 400, UNAUTHENTICATED 401, FORBIDDEN 403, NOT_FOUND 404,
-      CONFLICT 409 (record changed by someone else), LOCKED 423 (account locked), RATE_LIMITED 429, SERVER_ERROR 500.
+      CONFLICT 409 (record changed by someone else), LOCKED 423 (account locked), RATE_LIMITED 429, SERVER_ERROR 500, TWO_FACTOR_REQUIRED 403.
     - Lists accept: page (from 1), limit (25, 50 or 100), sort (field:asc or field:desc), q (search text), plus filters named in each endpoint.
-    - IDs have prefixes: USR-, DR-, APP-, VEH-, R- (ride), BK-, SOS-, RPT-, NTF-.
+    - Admin authentication returns MongoDB IDs as strings; development bypass uses USR-0001. Other planned IDs have prefixes: USR-, DR-, APP-, VEH-, R- (ride), BK-, SOS-, RPT-, NTF-.
     - Times are ISO 8601 in UTC. The frontend shows them in Asia/Colombo. Money is a number in Rs. (whole rupees).
     - Masked by default: email, mobile, NIC, licence number, address and date of birth. Full values only through a reveal endpoint, which writes an audit entry.
     - Risky actions (suspend, reject, cancel, hide, change a setting, break-glass) need a written "reason" in the body.
@@ -81,26 +81,33 @@ paths:
               properties:
                 email: { type: string, format: email }
                 password: { type: string }
+                deviceToken: { type: string }
       responses:
         '200':
-          description: Credentials accepted. If 2-step is needed, the response holds a short-lived challenge token.
+          description: Credentials accepted. Returns a five-minute challenge token or a session when a trusted device token is valid.
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   data:
-                    type: object
-                    properties:
-                      twoFactorRequired: { type: boolean }
-                      challengeToken: { type: string }
+                    oneOf:
+                      - type: object
+                        required: [twoFactorRequired, challengeToken]
+                        properties:
+                          twoFactorRequired: { type: boolean, enum: [true] }
+                          challengeToken: { type: string }
+                      - $ref: '#/components/schemas/Session'
+        '400': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
         '401': { $ref: '#/components/responses/Error' }
         '423': { $ref: '#/components/responses/Error' }
         '429': { $ref: '#/components/responses/Error' }
   /auth/2fa/verify:
     post:
       tags: [Auth]
-      summary: Step 2, six-digit code or backup code
+      summary: Step 2, six-digit authenticator code or backup code
+      description: Supply a current TOTP code or a single-use backup code. A successful verification consumes the challenge. If both codes are supplied, the TOTP code takes precedence.
       x-page: P01
       security: []
       requestBody:
@@ -128,25 +135,17 @@ paths:
   /auth/2fa/resend:
     post:
       tags: [Auth]
-      summary: Resend the code (allowed 30 seconds after the last one)
+      summary: Return authenticator app guidance (no code is sent)
       x-page: P01
       security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [challengeToken]
-              properties:
-                challengeToken: { type: string }
       responses:
         '200': { $ref: '#/components/responses/Ack' }
         default: { $ref: '#/components/responses/Error' }
   /auth/refresh:
     post:
       tags: [Auth]
-      summary: Get a new access token
+      summary: Rotate the refresh token and get a new access token
+      description: The previous refresh token becomes invalid. Sessions expire after 30 minutes of inactivity or eight hours from login. Refresh alone does not extend inactivity.
       x-page: P01
       security: []
       requestBody:
@@ -171,15 +170,26 @@ paths:
   /auth/logout:
     post:
       tags: [Auth]
-      summary: Sign out this session
+      summary: Revoke the session associated with the refresh token
       x-page: P01
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
       responses:
         '200': { $ref: '#/components/responses/Ack' }
         default: { $ref: '#/components/responses/Error' }
   /auth/forgot-password:
     post:
       tags: [Auth]
-      summary: Send a reset link. Always answers the same, whether or not the email exists.
+      summary: Request a password reset link without revealing whether the email exists.
+      description: Development and test use a console mail stub. A real mail provider is required for production.
       x-page: P02
       security: []
       requestBody:
@@ -196,7 +206,7 @@ paths:
   /auth/reset-password:
     post:
       tags: [Auth]
-      summary: Set a new password (12+ characters, link valid 30 minutes, one use). Signs out other sessions.
+      summary: Set a new password (12+ characters, link valid 30 minutes, one use). Revokes all sessions and trusted devices.
       x-page: P02
       security: []
       requestBody:
@@ -1491,7 +1501,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Access token with a role claim. Until real login exists, the auth stub accepts every request (header x-dev-role switches role).
+      description: JWT access token valid for 15 minutes. Protected requests check the current active admin and non-revoked session. Requests without Authorization may use the opt-in development bypass only in development or test.
 
   parameters:
     Id:
@@ -1553,6 +1563,7 @@ components:
                 type: object
                 properties:
                   ok: { type: boolean, example: true }
+                  message: { type: string }
     Object:
       description: One record. Exact fields are finalised per page during review.
       content:
@@ -1583,11 +1594,14 @@ components:
           properties:
             code:
               type: string
-              enum: [VALIDATION_ERROR, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, CONFLICT, LOCKED, RATE_LIMITED, SERVER_ERROR]
+              enum: [VALIDATION_ERROR, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, CONFLICT, LOCKED, RATE_LIMITED, SERVER_ERROR, TWO_FACTOR_REQUIRED]
             message: { type: string }
             details:
-              type: array
-              items: { type: object, additionalProperties: true }
+              oneOf:
+                - type: array
+                  items: { type: object, additionalProperties: true }
+                - type: object
+                  additionalProperties: true
     ListMeta:
       type: object
       properties:
@@ -1605,17 +1619,21 @@ components:
     AdminUser:
       type: object
       properties:
-        id: { type: string, example: USR-0001 }
+        id: { type: string, example: "507f1f77bcf86cd799439011" }
         name: { type: string }
         email: { type: string }
         role: { $ref: '#/components/schemas/Role' }
+        twoFactorEnabled: { type: boolean }
     Session:
       type: object
+      required: [accessToken, refreshToken, expiresIn, user, permissions]
       properties:
         accessToken: { type: string }
         refreshToken: { type: string }
-        expiresIn: { type: integer, description: 'In seconds' }
+        expiresIn: { type: integer, description: 'In seconds', example: 900 }
         user: { $ref: '#/components/schemas/AdminUser' }
+        deviceToken: { type: string, description: Returned when a device is newly trusted for 30 days }
+        permissions: { type: object, additionalProperties: true }
     UserListItem:
       type: object
       properties:
