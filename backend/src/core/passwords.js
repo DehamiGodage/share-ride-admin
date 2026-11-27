@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+import bcrypt from 'bcryptjs';
 
 const MIN_LENGTH = 12;
 const hashPassword = (plain) => bcrypt.hash(plain, 12);
@@ -14,4 +14,4 @@ function checkPolicy(password) {
   return null;
 }
 
-module.exports = { hashPassword, verifyPassword, checkPolicy, DUMMY_HASH };
+export { hashPassword, verifyPassword, checkPolicy, DUMMY_HASH };

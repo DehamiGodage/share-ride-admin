@@ -1,8 +1,8 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const { requirePermission } = require('../../core/permissions');
-const { httpError } = require('../../core/httpError');
-const AuditLog = require('./audit.model');
+import express from 'express';
+import mongoose from 'mongoose';
+import { requirePermission } from '../../core/permissions.js';
+import { httpError } from '../../core/httpError.js';
+import AuditLog from './audit.model.js';
 
 const router = express.Router();
 
@@ -73,4 +73,4 @@ router.get('/:id', requirePermission('audit_log', 'view'), async (req, res, next
   }
 });
 
-module.exports = router;
+export default router;

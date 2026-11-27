@@ -10,4 +10,4 @@ function httpError(status, code, message, details) {
   return err;
 }
 
-module.exports = { httpError };
+export { httpError };

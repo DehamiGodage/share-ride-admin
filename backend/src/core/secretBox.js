@@ -1,5 +1,5 @@
 
-const crypto = require('crypto');
+import crypto from 'node:crypto';
 
 
 function key() {  //load and validates encryption key from .env
@@ -19,4 +19,4 @@ function decrypt(value) {
   d.setAuthTag(tag);
   return Buffer.concat([d.update(data), d.final()]).toString('utf8');
 }
-module.exports = { encrypt, decrypt };
+export { encrypt, decrypt };

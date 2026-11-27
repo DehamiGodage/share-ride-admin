@@ -4,11 +4,11 @@
 // Needs MONGO_URL in backend/.env. It writes ONE entry (action config.update, target "smoke-test").
 // Entries cannot be deleted through the app. To remove it, delete it in MongoDB Compass or mongosh.
 
-require('dotenv').config();
-const mongoose = require('mongoose');
-const connectDB = require('../src/config/db');
-const AuditLog = require('../src/modules/audit/audit.model');
-const { auditLog } = require('../src/core/audit');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import connectDB from '../src/config/db.js';
+import AuditLog from '../src/modules/audit/audit.model.js';
+import { auditLog } from '../src/core/audit.js';
 
 (async () => {
   if (!(await connectDB())) {

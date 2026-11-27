@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Append-only: entries can be created and read, never changed or deleted (design document, P22).
 const auditLogSchema = new mongoose.Schema(
@@ -41,4 +41,4 @@ auditLogSchema.pre('save', function () {
   });
 });
 
-module.exports = mongoose.models.AuditLog || mongoose.model('AuditLog', auditLogSchema);
+export default mongoose.models.AuditLog || mongoose.model('AuditLog', auditLogSchema);

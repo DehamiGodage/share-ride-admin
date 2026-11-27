@@ -1,24 +1,24 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 
-const mongoose = require('mongoose');
-const AuditLog = require('../src/modules/audit/audit.model');
-const { auditLog } = require('../src/core/audit');
-const { revealFields } = require('../src/core/reveal');
-const app = require('../src/app');
+import mongoose from 'mongoose';
+import AuditLog from '../src/modules/audit/audit.model.js';
+import { auditLog } from '../src/core/audit.js';
+import { revealFields } from '../src/core/reveal.js';
+import app from '../src/app.js';
 
 const asAdmin = (role = 'super_admin') => ({ ip: '1.2.3.4', get: () => 'jest', user: { id: 'USR-0001', name: 'Dev Admin', role } });
 let readyState = 0;
 beforeEach(() => {
   readyState = 0;
+  vi.stubEnv('NODE_ENV', 'test');
+  vi.stubEnv('DEV_BYPASS_AUTH', 'true');
   vi.spyOn(mongoose.connection, 'readyState', 'get').mockImplementation(() => readyState);
   vi.spyOn(console, 'log').mockImplementation(() => {});
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'error').mockImplementation(() => {});
 });
-afterEach(() => { vi.restoreAllMocks(); delete process.env.NODE_ENV; });
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); });
 
 describe('audit_logs model is append-only', () => {
   it('validates required fields and result enum', async () => {

@@ -90,4 +90,4 @@ function requirePermission(area, level = 'view') {
   };
 }
 
-module.exports = { requirePermission, can, permissionsFor, ROLES };
+export { requirePermission, can, permissionsFor, ROLES };

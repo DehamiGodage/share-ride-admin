@@ -1,17 +1,18 @@
-const express = require('express');
-const { rateLimit } = require('express-rate-limit');
-const { decrypt } = require('../../core/secretBox');
-const { authenticator } = require('otplib');
-const Admin = require('../admins/admin.model');
-const Session = require('./session.model');
-const { httpError } = require('../../core/httpError');
-const { auditLog } = require('../../core/audit');
-const { permissionsFor } = require('../../core/permissions');
-const { hashPassword, verifyPassword, checkPolicy, DUMMY_HASH } = require('../../core/passwords');
-const {
+import express from 'express';
+import { rateLimit } from 'express-rate-limit';
+import { decrypt } from '../../core/secretBox.js';
+import otplib from 'otplib';
+const { authenticator } = otplib;
+import Admin from '../admins/admin.model.js';
+import Session from './session.model.js';
+import { httpError } from '../../core/httpError.js';
+import { auditLog } from '../../core/audit.js';
+import { permissionsFor } from '../../core/permissions.js';
+import { hashPassword, verifyPassword, checkPolicy, DUMMY_HASH } from '../../core/passwords.js';
+import {
   ACCESS_SECONDS, sha256, randomToken, signAccess, signChallenge, verifyChallenge, normalizeBackupCode,
-} = require('../../core/tokens');
-const { sendMail } = require('../../core/mailer');
+} from '../../core/tokens.js';
+import { sendMail } from '../../core/mailer.js';
 
 authenticator.options = { window: 1 }; // accept the code from 30 seconds before or after (clock drift)
 
@@ -246,4 +247,4 @@ router.post('/reset-password', wrap(async (req, res) => {
   res.json({ data: { ok: true } });
 }));
 
-module.exports = router;
+export default router;

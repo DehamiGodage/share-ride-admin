@@ -1,6 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { permissionsFor } from '../core/permissions.js';
+import auditRoutes from './audit/audit.routes.js';
+
 const router = express.Router();
-const { permissionsFor } = require('../core/permissions');
 
 // Who am I, and what may my role do? The frontend uses this to show only allowed menu groups.
 // GET /admin/me
@@ -8,9 +10,10 @@ router.get('/me', (req, res) =>
   res.json({ user: req.user, permissions: permissionsFor(req.user.role) })
 );
 
-router.use('/audit', require('./audit/audit.routes'));
+router.use('/audit', auditRoutes);
 
 // Each member adds ONE line for their own module, for example:
-// router.use('/users', require('./users/users.routes'));
+// import usersRoutes from './users/users.routes.js';
+// router.use('/users', usersRoutes);
 
-module.exports = router;
+export default router;
