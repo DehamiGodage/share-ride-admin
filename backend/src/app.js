@@ -11,6 +11,9 @@ app.use(express.json());
 // Public
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
+
+app.use('/auth', require('./modules/auth/auth.routes'));
+
 // Everything under /admin goes through authenticate (stub today, real JWT on day 3)
 app.use('/admin', authenticate, require('./modules'));
 
