@@ -1,6 +1,7 @@
 import express from 'express';
 import { permissionsFor } from '../core/permissions.js';
 import auditRoutes from './audit/audit.routes.js';
+import usersRoutes from './users/users.routes.js';
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ router.get('/me', (req, res) =>
 );
 
 router.use('/audit', auditRoutes);
+router.use('/users', usersRoutes);
 
 // Each member adds ONE line for their own module, for example:
 // import usersRoutes from './users/users.routes.js';
