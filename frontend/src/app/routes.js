@@ -69,3 +69,44 @@ export const PUBLIC_ROUTES = [
   { id: 'P02', path: '/forgot-password', title: 'Forgot password' },
   { id: 'P02', path: '/reset-password', title: 'Reset password' },
 ];
+
+
+// Backend permission required for each admin page.
+export const ROUTE_PERMISSIONS = {
+  P03: { area: 'dashboard' },
+
+  P04: { area: 'users' },
+  P05: { area: 'users' },
+
+  P06: { area: 'driver_applications' },
+  P07: { area: 'driver_applications', level: 'full' },
+
+  P08: { area: 'drivers_vehicles' },
+  P09: { area: 'drivers_vehicles', level: 'full' },
+
+  P10: { area: 'rides_bookings' },
+  P11: { area: 'rides_bookings' },
+  P12: { area: 'rides_bookings' },
+
+  P13: { area: 'live_map' },
+
+  P14: { area: 'sos_reports', level: 'full' },
+  P15: { area: 'sos_reports' },
+  P16: { area: 'sos_reports', level: 'full' },
+
+  P17: { area: 'ratings' },
+
+  P18: { area: 'notifications' },
+
+  P19: { area: 'pricing_rules' },
+  P20: { area: 'content_locations' },
+
+  P21: { area: 'analytics' },
+
+  P22: { area: 'audit_log' },
+  P23: { area: 'system_health' },
+  P24: { area: 'admin_accounts' },
+
+  // Available to every authenticated admin.
+  P25: null,
+};

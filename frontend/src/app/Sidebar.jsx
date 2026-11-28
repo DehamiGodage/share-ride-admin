@@ -10,7 +10,12 @@ import {
   ChevronsLeft, ChevronsRight,
 } from 'lucide-react';
 
-import { APP_ROUTES, GROUP_ORDER } from './routes';
+import {
+  APP_ROUTES,
+  GROUP_ORDER,
+  ROUTE_PERMISSIONS,
+} from './routes.js';
+
 import { useAuth } from './AuthContext';
 
 const ICONS = {
@@ -22,7 +27,7 @@ const ICONS = {
 
 export default function Sidebar({ collapsed, onToggle }) {
 
-  const { role } = useAuth();
+  const { role, can } = useAuth();
   const location = useLocation();
   const navRef = useRef(null);
 
@@ -35,13 +40,32 @@ export default function Sidebar({ collapsed, onToggle }) {
     visible: false,
   });
 
-  // Filter pages according to user role
-  const groups = GROUP_ORDER.map((name) => ({
-    name,
-    items: APP_ROUTES.filter(
-      (r) => r.group === name && r.roles.includes(role)
-    ),
-  })).filter((g) => g.items.length > 0);
+// Filter navigation using backend permissions.
+const groups = GROUP_ORDER.map((name) => ({
+  name,
+
+  items: APP_ROUTES.filter((route) => {
+    if (route.group !== name) {
+      return false;
+    }
+
+    const permission = ROUTE_PERMISSIONS[route.id];
+
+    if (permission === null) {
+      return true;
+    }
+
+    if (!permission) {
+      return false;
+    }
+
+    return can(
+      permission.area,
+      permission.level || 'view'
+    );
+  }),
+
+})).filter((group) => group.items.length > 0);
 
   // Update indicator when the selected page changes
   useLayoutEffect(() => {
@@ -103,7 +127,7 @@ export default function Sidebar({ collapsed, onToggle }) {
 
     return () => observer.disconnect();
 
-  }, [location.pathname, collapsed, role]);
+}, [location.pathname, collapsed, role, can]);
 
   return (
     <aside
